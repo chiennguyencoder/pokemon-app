@@ -9,6 +9,8 @@
     const currentIndex = ref(36)
 
     async function fetchData(){
+        console.log('Đang fetch api');
+        
         const response = await fetch(url)
         const data = await response.json()
         const PromiseData = [];
@@ -16,10 +18,8 @@
         for (let pokemon of data.results){
             const responsePokemon = await fetch(pokemon.url)
             const dataPokemon = await responsePokemon.json()
-            PromiseData.push(dataPokemon)
+            allPokemon.value.push(dataPokemon)
         }
-
-        allPokemon.value = await Promise.all(PromiseData)
         temp.value = allPokemon.value
     }
 
@@ -33,6 +33,8 @@
     })
 
     function loadMoreHandle(){
+        console.log('Load more pokemon');
+        
         currentIndex.value += currentIndex.value*2;
     }
 
