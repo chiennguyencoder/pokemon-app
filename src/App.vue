@@ -9,18 +9,32 @@
     const currentIndex = ref(36)
 
     async function fetchData(){
-        console.log('Đang fetch api');
-        
-        const response = await fetch(url)
-        const data = await response.json()
-        const PromiseData = [];
+        try {
+            console.log('Đang fetch api');
+            const response = await fetch(url)
 
-        for (let pokemon of data.results){
-            const responsePokemon = await fetch(pokemon.url)
-            const dataPokemon = await responsePokemon.json()
-            allPokemon.value.push(dataPokemon)
+            if (!response.ok) throw new Error('Lỗi fetch danh sách pokemon')
+
+            const data = await response.json()
+            
+            const PromiseList = data.results.map(async (pokemon) => {                
+                const responsePokemon = await fetch(pokemon.url)
+                if (!responsePokemon.ok) throw new Error(`Lỗi khi fetch thông tin pokemon : ${pokemon.name}`)
+                return responsePokemon.json();
+            })
+
+            // console.log(PromiseList);
+            
+
+            allPokemon.value = await Promise.all(PromiseList)
+            
+            console.log("Fetch api hoàn tất")
+            temp.value = allPokemon.value
         }
-        temp.value = allPokemon.value
+        catch(error){
+            console.log("Lỗi: ", error)
+            return null
+        }
     }
 
     const renderList = computed(() => {
